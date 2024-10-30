@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import './Dashboard.css';  // Add styles here if needed
 import { auth } from './firebase';
 import { db } from './firebase';  // Firestore reference
-import { doc, getDoc, updateDoc } from 'firebase/firestore';
+import { doc, getDoc, updateDoc, setDoc } from 'firebase/firestore';
 
 function Dashboard() {
   const [ticker, setTicker] = useState('');
@@ -47,29 +47,50 @@ function Dashboard() {
 
   const addToWatchlist = async () => {
     if (ticker) {
+      if (watchlist.includes(ticker)) {
+        setError('Stock already exists in watchlist.');
+        console.error('Stock already exists in watchlist.');
+        return;
+      }
       const updatedWatchlist = [...watchlist, ticker];
       setWatchlist(updatedWatchlist);
-      await updateDoc(doc(db, "users", user.uid), { watchlist: updatedWatchlist });
+      if (user && user.uid) {
+        try {
+          await setDoc(doc(db, "users", user.uid), { watchlist: updatedWatchlist });
+        } catch (error) {
+          console.error("Error adding to watchlist: ", error);
+        }
+      } else {
+        console.error("User is not authenticated.");
+      }
       setTicker('');
     }
   };
 
   const addToHoldings = async () => {
     if (ticker) {
+      if (holdings.includes(ticker)) {
+        setError('Stock already exists in holdings.');
+        console.error('Stock already exists in holdings.');
+        return;
+      }
       const updatedHoldings = [...holdings, ticker];
       setHoldings(updatedHoldings);
-      await updateDoc(doc(db, "users", user.uid), { holdings: updatedHoldings });
+      try{
+        await setDoc(doc(db, "users", user.uid), { holdings: updatedHoldings });
+      } catch (error) {
+        console.error("Error adding to holdings: ", error);
+      }
       setTicker('');
     }
   };
 
   return (
     <div className="dashboard">
-      <h1>Stock Monitoring Dashboard</h1>
-
       <div className="logout-container">
         <button onClick={handleLogout} className="btn-logout">Log Out</button>
       </div>
+      <h1>Stock Monitoring Dashboard</h1>
 
       <div className="input-container">
         <label htmlFor="ticker-input">Enter Ticker:</label>
@@ -81,12 +102,15 @@ function Dashboard() {
           placeholder="e.g. AAPL, MSFT"
         />
       </div>
-
+      <div className="buttons-container">
+        <button onClick={addToWatchlist}>+ Add to Watchlist</button>
+        <button onClick={addToHoldings}>+ Add to Holdings</button>
+      </div>
       <div className="tables-container">
         {/* Watchlist Table */}
         <div className="table-container">
           <h2>Watchlist</h2>
-          <button onClick={addToWatchlist}>+ Add to Watchlist</button>
+
           <table>
             <thead>
               <tr>
@@ -106,7 +130,6 @@ function Dashboard() {
         {/* Holdings Table */}
         <div className="table-container">
           <h2>Holdings</h2>
-          <button onClick={addToHoldings}>+ Add to Holdings</button>
           <table>
             <thead>
               <tr>
