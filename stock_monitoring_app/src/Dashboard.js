@@ -56,7 +56,7 @@ function Dashboard() {
       setWatchlist(updatedWatchlist);
       if (user && user.uid) {
         try {
-          await setDoc(doc(db, "users", user.uid), { watchlist: updatedWatchlist });
+          await updateDoc(doc(db, "users", user.uid), { watchlist: updatedWatchlist });
         } catch (error) {
           console.error("Error adding to watchlist: ", error);
         }
@@ -77,7 +77,7 @@ function Dashboard() {
       const updatedHoldings = [...holdings, ticker];
       setHoldings(updatedHoldings);
       try{
-        await setDoc(doc(db, "users", user.uid), { holdings: updatedHoldings });
+        await updateDoc(doc(db, "users", user.uid), { holdings: updatedHoldings });
       } catch (error) {
         console.error("Error adding to holdings: ", error);
       }
