@@ -1,0 +1,97 @@
+/* Overall Auth Page Layout */
+.auth-page {
+    height: 100vh;
+    display: flex;
+    flex-direction: column; /* Stack elements vertically */
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(135deg,#007bff, #00d4ff);
+  }
+  
+  /* Header Section for NYSE Tracker Title and Subtitle */
+  .auth-header {
+    text-align: center;
+    margin-bottom: 20px; /* Add space between the header and the form */
+  }
+  
+  .app-title {
+    font-size: 36px;
+    font-weight: bold;
+    
+    margin: 0;
+  }
+  
+  .app-subtitle {
+    font-size: 16px;
+    color: white;
+    margin-top: 10px;
+    
+  }
+  
+  /* Auth Form Container */
+  .auth-container {
+    background-color: white;
+    padding: 40px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.1);
+    width: 400px;
+    text-align: center;
+  }
+  
+  /* Title Styling for the form */
+  .auth-title {
+    font-size: 28px;
+    font-weight: bold;
+    color: #2c3e50;
+    margin-bottom: 20px;
+  }
+  
+  /* Input Field Styling */
+  .auth-input {
+    width: 100%;
+    padding: 12px;
+    margin: 10px 0;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 16px;
+  }
+  
+  /* Button Styling */
+  .auth-button {
+    width: 100%;
+    padding: 12px;
+    background-color: #3498db;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .auth-button:hover {
+    background-color: #2980b9;
+  }
+  
+  /* Error Message Styling */
+  .error-message {
+    color: red;
+    margin-bottom: 10px;
+    font-size: 14px;
+  }
+  
+  /* Toggle Message Styling */
+  .toggle-message {
+    margin-top: 15px;
+  }
+  
+  .toggle-link {
+    color: #3498db;
+    cursor: pointer;
+    font-weight: bold;
+  }
+  
+  .toggle-link:hover {
+    text-decoration: underline;
+  }
+  
