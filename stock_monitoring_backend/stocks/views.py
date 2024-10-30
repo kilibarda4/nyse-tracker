@@ -32,10 +32,12 @@ def get_stock_data(request):
             time_series = data['Time Series (60min)']
             latest_date = next(iter(time_series))
             latest_data = time_series[latest_date]
+            print(latest_data)
             stock_prices[symbol] = latest_data['4. close']  #store the close price
         else:
             stock_prices[symbol] = "N/A" #missing data for price
     print(stock_prices)
+    
     return JsonResponse(stock_prices)
     
 
