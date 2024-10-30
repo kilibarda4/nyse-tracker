@@ -40,7 +40,7 @@ function AuthForm() {
         {/* NYSE Tracker Title and Subtitle */}
       <div className='auth-header'>
         <h1 className='app-title'>NYSE Tracker</h1>
-        <p className='app-subtitle'>Stay on top of the latest stock prices with real-time data and alerts.</p>
+        <p className='app-subtitle'>Stay Ahead, Trade Smart:<br></br> Real-Time NYSE Prices & Alerts.</p>
       </div>
 
       <div className="auth-container">
