@@ -8,7 +8,7 @@ function Dashboard() {
   const [ticker, setTicker] = useState('');
   const [watchlist, setWatchlist] = useState([]);
   const [holdings, setHoldings] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [prices, setPrices]     = useState({});
   const [error, setError] = useState(null);
   const [user, setUser] = useState(null); // To store user data
 
@@ -29,11 +29,28 @@ function Dashboard() {
         const data = userDoc.data();
         setWatchlist(data.watchlist || []);
         setHoldings(data.holdings || []);
+        fetchPrices([...data.watchlist,...data.holdings]);
       } else {
         console.error("No user data found");
       }
     } catch (error) {
       console.error("Error fetching user data: ", error);
+    }
+  };
+
+
+  const fetchPrices = async (tickers) => {
+    try {
+      const params = new URLSearchParams();
+      tickers.forEach((ticker)=> params.append("symbols[]",ticker));
+
+      const response = await fetch(`http://127.0.0.1:8000/api/stock/?${params.toString()}`);
+      const data = await response.json();
+      console.log(data);
+
+      setPrices(data);
+    } catch (error) {
+      console.error("Error fetching stock prices: ", error);
     }
   };
 
@@ -56,7 +73,19 @@ function Dashboard() {
       setWatchlist(updatedWatchlist);
       if (user && user.uid) {
         try {
-          await updateDoc(doc(db, "users", user.uid), { watchlist: updatedWatchlist });
+          const userDocRef = doc(db,"users",user.uid);
+          const userDocSnap = await getDoc(userDocRef);
+          if (userDocSnap.exists()) 
+          {
+            const userData = userDocSnap.data();
+
+            await updateDoc(userDocRef, {
+              watchlist: updatedWatchlist,
+              holdings: userData.holdings || holdings
+            });
+          } else {
+            await setDoc(userDocRef, { watchlist: updatedWatchlist, holdings:[] });
+          }
         } catch (error) {
           console.error("Error adding to watchlist: ", error);
         }
@@ -76,10 +105,27 @@ function Dashboard() {
       }
       const updatedHoldings = [...holdings, ticker];
       setHoldings(updatedHoldings);
-      try{
-        await updateDoc(doc(db, "users", user.uid), { holdings: updatedHoldings });
-      } catch (error) {
-        console.error("Error adding to holdings: ", error);
+      if (user && user.uid) 
+      {
+        try {
+          const userDocRef = doc(db,"users",user.uid);
+          const userDocSnap = await getDoc(userDocRef);
+          if (userDocSnap.exists())
+          {
+            const userData = userDocSnap.data;
+
+            await updateDoc(userDocRef, {
+              holdings: updatedHoldings,
+              watchlist: userData.watchlist || watchlist
+            });
+          } else {
+            await setDoc(userDocRef, { holdings: updatedHoldings, watchlist: [] });
+          }
+        } catch (error) {
+          console.error("Error adding to holdings.", error);
+        }
+      } else {
+        console.error("User is not authenticated.");
       }
       setTicker('');
     }
@@ -115,12 +161,14 @@ function Dashboard() {
             <thead>
               <tr>
                 <th>Ticker</th>
+                <th>Last Price</th>
               </tr>
             </thead>
             <tbody>
               {watchlist.map((stock, index) => (
                 <tr key={index}>
                   <td>{stock}</td>
+                  <td>{prices[stock]|| 'Loading...'}</td>
                 </tr>
               ))}
             </tbody>
@@ -134,12 +182,14 @@ function Dashboard() {
             <thead>
               <tr>
                 <th>Ticker</th>
+                <th>Last Price</th>
               </tr>
             </thead>
             <tbody>
               {holdings.map((stock, index) => (
                 <tr key={index}>
                   <td>{stock}</td>
+                  <td>{prices[stock]|| 'Loading...'}</td>
                 </tr>
               ))}
             </tbody>

@@ -5,39 +5,38 @@ import requests
 
 from django.http import JsonResponse
 
-ALPHA_VANTAGE_API_KEY = 'CLJJA7CIAGDUVHOH' #dont lose
+ALPHA_VANTAGE_API_KEY = 'V3A80GJOZA9EL6Y4' #dont lose
+#V3A80GJOZA9EL6Y4
+#CLJJA7CIAGDUVHOH used up key
 
 ALPHA_VANTAGE_URL = 'https://www.alphavantage.co/query'
 
 def get_stock_data(request):
-    symbol = request.GET.get('symbol','AAPL') # default to AAPL if no symbol is provided
-    interval = request.GET.get('interval', '60min')
-    params = {
-        'function': 'TIME_SERIES_INTRADAY',
-        'interval': '60min',
-        'symbol': symbol,
-        'apikey':ALPHA_VANTAGE_API_KEY
-    }
-    response = requests.get(ALPHA_VANTAGE_URL,params=params)
-    data = response.json()
-    print(data)
-
-    if 'Time Series ('+interval+')' in data:
-        time_series = data['Time Series ('+interval+')']
-        latest_date = next(iter(time_series))
-        latest_data = time_series[latest_date]
-
-        return JsonResponse({
-            'symbol': symbol,
-            'data': latest_date,
+    symbols = request.GET.getlist('symbols[]',[]) # default to AAPL if no symbol is provided
+    interval = '60min'
+    stock_prices = {}
+    for symbol in symbols:
+        params = {
+            'function': 'TIME_SERIES_INTRADAY',
             'interval': interval,
-            'open': latest_data['1. open'],
-            'high': latest_data['2. high'],
-            'low': latest_data['3. low'],
-            'close': latest_data['4. close'],
-            'volume': latest_data['5. volume']
-        })
-    else:
-        return JsonResponse({'error': 'Failed to retrieve data'}, status=400)    
+            'symbol': symbol,
+            'apikey':ALPHA_VANTAGE_API_KEY
+        }
+        response = requests.get(ALPHA_VANTAGE_URL,params=params)
+        data = response.json()
+        print(data)
+        print("hey")
+        
+
+        if 'Time Series (60min)' in data:
+            time_series = data['Time Series (60min)']
+            latest_date = next(iter(time_series))
+            latest_data = time_series[latest_date]
+            stock_prices[symbol] = latest_data['4. close']  #store the close price
+        else:
+            stock_prices[symbol] = "N/A" #missing data for price
+    print(stock_prices)
+    return JsonResponse(stock_prices)
+    
 
 
