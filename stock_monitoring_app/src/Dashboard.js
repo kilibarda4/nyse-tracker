@@ -4,6 +4,8 @@ import { auth } from './firebase';
 import { db } from './firebase';  // Firestore reference
 import { doc, getDoc, updateDoc, setDoc } from 'firebase/firestore';
 
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
+
 function Dashboard() {
   const [ticker, setTicker] = useState('');
   const [watchlist, setWatchlist] = useState([]);
@@ -44,7 +46,6 @@ function Dashboard() {
         setHoldings(data.holdings || []);
         fetchPrices([...data.watchlist,...data.holdings]);
         
-        console.log("test");
         console.log(prices);
       } else {
         console.error("No user data found");
@@ -59,19 +60,13 @@ function Dashboard() {
     console.log("fetchPrices called with", tickers);
     try {
       const params = new URLSearchParams();
-      console.log("trying");
       tickers.forEach((ticker)=> params.append("symbols[]",ticker));
-      console.log("before response");
-      const response = await fetch(`http://127.0.0.1:8000/api/stock/?${params.toString()}`);
-      console.log("after response");
+      const response = await fetch(`${API_BASE_URL}/stock/?${params.toString()}`);
       if(!response.ok) {
         throw new Error(`Network response was not ok: ${response.statusText}`);
       }
-      console.log("before setting data to data");
       const data = await response.json();
-      console.log("before setting");
       console.log(data);
-      console.log("heyy bnro");
 
       setPrices(data);
     } catch (error) {
@@ -139,7 +134,7 @@ function Dashboard() {
       await setDoc(alertRef, alertData);
       console.log("Alert saved successfully:", alertData);
 
-      const response = await fetch('http://127.0.0.1:8000/api/publish-alert/', {
+      const response = await fetch(`${API_BASE_URL}/publish-alert/`, {
         method: 'POST',
         headers: {
           'Content-Type' : 'application/json',

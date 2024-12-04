@@ -29,11 +29,18 @@ db = firestore.Client()
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    'localhost',
+    '127.0.0.1',
+    'stock-monitoring-app-985492666032.us-east1.run.app',  # Frontend URL
+    'stock-monitoring-backend-985492666032.us-east1.run.app',  # Backend URL
+]
+
 CORS_ALLOW_ALL_ORIGINS = True
 
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:3000",
+    "https://stock-monitoring-app-985492666032.us-east1.run.app",  # Frontend URL
 ]
 
 
