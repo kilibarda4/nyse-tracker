@@ -1,0 +1,13 @@
+.gcloudignore
+.git/
+.gitignore
+__pycache__/
+env/
+node_modules/
+*.log
+*.sqlite3
+.vscode/
+.DS_Store
+*.pyc
+*.pyo
+.idea/

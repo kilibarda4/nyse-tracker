@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
+import { createUserWithEmailAndPassword, sendEmailVerification, signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from './firebase'; // Your firebase.js file
 import './AuthForm.css';
 
@@ -9,6 +9,7 @@ function AuthForm() {
   const [password, setPassword] = useState('');
   const [isSignUp, setIsSignUp] = useState(false);  // Toggle between sign up and sign in
   const [error, setError] = useState('');
+  const [message, setMessage] = useState('');
   const navigate = useNavigate();
   
 
@@ -16,20 +17,36 @@ function AuthForm() {
   const toggleSignUp = () => {
     setIsSignUp(!isSignUp);
     setError('');  // Clear any previous errors
+    setMessage('');
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
+    setMessage('');
     try {
       if (isSignUp) {
         // Sign Up flow
-        await createUserWithEmailAndPassword(auth, email, password);
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
+        await sendEmailVerification(user);
+        setMessage('Account created! A verification email has been sent to your inbox.');
+        setPassword('');
+        setIsSignUp(false);
+        //setTimeout(()=> navigate('/signin'),5000); //redirects to sign in page after 5 seconds.
       } else {
         // Login flow
-        await signInWithEmailAndPassword(auth, email, password);
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
+
+        if (!user.emailVerified) 
+        {
+          setError('Please verify your email to continue signing in.');
+          return;
+        }
+        navigate('/dashboard'); // Redirect to dashboard after successful login or signup
       }
-      // Redirect to dashboard after successful login or signup
-      navigate('/dashboard');
+             
     } catch (err) {
       setError(err.message);
     }
@@ -47,6 +64,7 @@ function AuthForm() {
         <h1 className="auth-title">{isSignUp ? 'Create Your Account' : 'Welcome Back!'}</h1>
 
         {error && <p className="error-message">{error}</p>}
+        {message && <p className="success-message">{message}</p>}
 
         <form onSubmit={handleSubmit} className="auth-form">
           <input

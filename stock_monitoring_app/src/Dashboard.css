@@ -128,3 +128,37 @@ button:active {
   background-color: #f9f9f9;
   color: #333;
 }
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: #fff;
+  padding: 20px;
+  border-radius: 10px;
+  width: 90%;
+  max-width: 500px;
+  text-align: center;
+}
+
+.modal-field {
+  margin-bottom: 15px;
+}
+
+.modal-buttons button {
+  margin: 5px;
+  padding: 10px 20px;
+}
+
+.error-message {
+  color: red;
+}
