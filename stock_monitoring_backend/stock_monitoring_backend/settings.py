@@ -22,6 +22,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-gqa-zlzjtubiykiebj_xl-gse2rmip8^(*p$cp&-0u42ea3_u$'
 
+PROJECT_ID = '985492666032' #spring-nova-435423-t7
 
 db = firestore.Client()
 

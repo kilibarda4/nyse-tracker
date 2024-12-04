@@ -1,12 +1,24 @@
 import requests
-from google.cloud import firestore
+from google.cloud import firestore, secretmanager
 from django.core.mail import send_mail
+from django.conf import settings
  # Assuming you have an Alert model to store alerts
 
 db = firestore.Client()
+client = secretmanager.SecretManagerServiceClient()
 
-ALPHA_VANTAGE_API_KEY = "V3A80GJOZA9EL6Y4"
-ALPHA_VANTAGE_URL = "https://www.alphavantage.co/query"
+
+def get_secret(secret_id):
+    name = f"projects/{settings.PROJECT_ID}/secrets/{secret_id}/versions/latest"
+    response = client.access_secret_version(name=name)
+    return response.payload.data.decode("UTF-8")
+
+# Fetch the API key from Secret Manager
+ALPHA_VANTAGE_API_KEY = get_secret("NYSE_API_KEY")
+ALPHA_VANTAGE_URL = 'https://www.alphavantage.co/query'
+
+# ALPHA_VANTAGE_API_KEY = "V3A80GJOZA9EL6Y4"
+# ALPHA_VANTAGE_URL = "https://www.alphavantage.co/query"
 
 
 # Fetch stock prices from an external API

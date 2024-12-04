@@ -16,43 +16,54 @@ from django.views.decorators.csrf import csrf_exempt
 import json
 # Create your views here.
 import requests
+from django.conf import settings
+from google.cloud import secretmanager
 
 from django.http import JsonResponse
 
-ALPHA_VANTAGE_API_KEY = 'V3A80GJOZA9EL6Y4' #dont lose
-#V3A80GJOZA9EL6Y4
-#CLJJA7CIAGDUVHOH used up key
+client = secretmanager.SecretManagerServiceClient()
 
+def get_secret(secret_id):
+    name = f"projects/{settings.PROJECT_ID}/secrets/{secret_id}/versions/latest"
+    response = client.access_secret_version(name=name)
+    return response.payload.data.decode("UTF-8")
+
+# Fetch the API key from Secret Manager
+ALPHA_VANTAGE_API_KEY = get_secret("NYSE_API_KEY")
 ALPHA_VANTAGE_URL = 'https://www.alphavantage.co/query'
 
-def get_stock_data(request):
-    symbols = request.GET.getlist('symbols[]',[]) # default to AAPL if no symbol is provided
-    interval = '60min'
-    stock_prices = {}
-    for symbol in symbols:
-        params = {
-            'function': 'TIME_SERIES_INTRADAY',
-            'interval': interval,
-            'symbol': symbol,
-            'apikey':ALPHA_VANTAGE_API_KEY
-        }
-        response = requests.get(ALPHA_VANTAGE_URL,params=params)
-        data = response.json()
-        print(data)
-        print("hey")
-        
+# ALPHA_VANTAGE_API_KEY = 'V3A80GJOZA9EL6Y4' #dont lose
+#V3A80GJOZA9EL6Y4
+#CLJJA7CIAGDUVHOH used up key
+# ALPHA_VANTAGE_URL = 'https://www.alphavantage.co/query'
 
-        if 'Time Series (60min)' in data:
-            time_series = data['Time Series (60min)']
-            latest_date = next(iter(time_series))
-            latest_data = time_series[latest_date]
-            print(latest_data)
-            stock_prices[symbol] = latest_data['4. close']  #store the close price
-        else:
-            stock_prices[symbol] = "N/A" #missing data for price
-    print(stock_prices)
-    
-    return JsonResponse(stock_prices)
+def get_stock_data(request):
+    if request.method == "GET":
+        symbols = request.GET.getlist('symbols[]', [])  # default to AAPL if no symbol is provided
+        interval = '60min'
+        stock_prices = {}
+        for symbol in symbols:
+            params = {
+                'function': 'TIME_SERIES_INTRADAY',
+                'interval': interval,
+                'symbol': symbol,
+                'apikey': ALPHA_VANTAGE_API_KEY
+            }
+            response = requests.get(ALPHA_VANTAGE_URL, params=params)
+            data = response.json()
+            print(f"Response for {symbol}: {data}")  # Add logging to check the response
+
+            if 'Time Series (60min)' in data:
+                time_series = data['Time Series (60min)']
+                latest_date = next(iter(time_series))
+                latest_data = time_series[latest_date]
+                stock_prices[symbol] = latest_data['4. close']  # store the close price
+            else:
+                stock_prices[symbol] = "N/A"  # missing data for price
+        print(f"Stock prices: {stock_prices}")
+        
+        return JsonResponse(stock_prices)
+    return JsonResponse({"error": "Invalid request method"}, status=400)
 
 
 def send_verification_email(request):
