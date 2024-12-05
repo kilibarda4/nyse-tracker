@@ -143,20 +143,62 @@ button:active {
 
 .modal-content {
   background: #fff;
-  padding: 20px;
+  padding: 30px; /* Increase padding for more spacing */
   border-radius: 10px;
   width: 90%;
-  max-width: 500px;
+  max-width: 600px;
   text-align: center;
 }
 
 .modal-field {
-  margin-bottom: 15px;
+  margin: 15px; /* Increase gap between modal sections */
+}
+
+label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: #333;
+}
+
+input,
+select {
+  width: 100%; /* Ensure inputs stretch neatly */
+  max-width: 500px;
+  padding: 10px;
+  margin-bottom: 5px; /* Add small gap between label and input */
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.success-message {
+  color: green;
+  font-size: 1rem;
+  margin-top: 10px;
+}
+
+.modal-buttons {
+  margin-top: 20px; /* Space above the buttons */
+  display: flex;
+  justify-content: center;
+  gap: 15px; /* Space between buttons */
 }
 
 .modal-buttons button {
-  margin: 5px;
   padding: 10px 20px;
+  font-size: 1rem;
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.modal-buttons button:hover {
+  background-color: #0056b3;
 }
 
 .error-message {

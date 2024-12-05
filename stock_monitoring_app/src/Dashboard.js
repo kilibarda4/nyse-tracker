@@ -12,6 +12,7 @@ function Dashboard() {
   const [holdings, setHoldings] = useState([]);
   const [prices, setPrices]     = useState({});
   const [error, setError] = useState(null);
+  const [successMessage, setSuccessMessage] = useState('');
   const [user, setUser] = useState(null); // To store user data
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -93,6 +94,13 @@ function Dashboard() {
     setError('');
   };
 
+  const clearMessages = () => {
+    setTimeout(() => {
+      setSuccessMessage('');
+      setError('');
+    }, 3000); // Clear after 5 seconds
+  };
+
   const savePriceAlert = async () => {
     if (!selectedStock) {
       setError('Please select a stock.');
@@ -150,7 +158,8 @@ function Dashboard() {
         return;
       }
       console.log("Alert published to Pub/Sub successfully");
-
+      setSuccessMessage("Alert saved and published successfully.");
+      clearMessages();
     } catch (error) {
       console.error("Error saving alert:", error);
       setError("Failed to save the alert.");
@@ -186,6 +195,8 @@ function Dashboard() {
             await setDoc(userDocRef, { watchlist: updatedWatchlist, holdings:[] });
           }
           fetchPrices([...updatedWatchlist, ...holdings]);
+          setSuccessMessage(`${ticker} added to Watchlist successfully!`);
+          clearMessages();
         } catch (error) {
           console.error("Error adding to watchlist: ", error);
         }
@@ -302,17 +313,19 @@ function Dashboard() {
         <div className="modal">
           <div className="modal-content">
             <h2>Set Price Alert</h2>
-            <label htmlFor="alert-type">Choose Alert Type:</label>
-            <select
-              id="alert-type"
-              value={alertType}
-              onChange={(e)=> setAlertType(e.target.value)}
-            >
-              <option value="fixed">Fixed Price</option>
-              <option value="percent">Percentage Change</option>
-            </select>
+            <div className="modal-field">
+              <label htmlFor="alert-type">Choose Alert Type:</label>
+              <select
+                id="alert-type"
+                value={alertType}
+                onChange={(e)=> setAlertType(e.target.value)}
+              >
+                <option value="fixed">Fixed Price</option>
+                <option value="percent">Percentage Change</option>
+              </select>
+            </div>
             {alertType === "fixed" ? (
-              <div>
+            <div className="modal-field">
               <label htmlFor="target-price">Target Price:</label>
               <input
                 type="number"
@@ -323,7 +336,7 @@ function Dashboard() {
               />
             </div>
             ) : (
-              <div>
+            <div className="modal-field">
               <label htmlFor="percent-change">Percentage Change (%):</label>
               <input
                 type="number"
@@ -334,7 +347,7 @@ function Dashboard() {
               />
             </div>
           )}
-
+        <div className="modal-field">
           <label htmlFor="price-direction">Alert Direction:</label>
           <select
             id = "price-direction"
@@ -344,8 +357,13 @@ function Dashboard() {
             <option value="increase">Increase</option>
             <option value="decrease">Decrease</option>
           </select>
-            
-            {error && <p className="error-message">{error}</p>}
+        </div>
+            {successMessage && (
+              <p className="success-message">{successMessage}</p>
+            )}            
+            {error && (
+              <p className="error-message">{error}</p>
+            )}
 
             <div className="modal-field">
               <label htmlFor="stock-select">Select Stock:</label>
